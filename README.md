@@ -1,4 +1,4 @@
-# 🔍 Dead on Arrival — A Murder Mystery Detective Game
+# GAME NAME — A Murder Mystery Detective Game
 
 > **A Hackathon Project for [Quack Hacks 2026](https://quackhacks.org)**
 
@@ -29,16 +29,6 @@ Each playthrough is powered by **AI agents** — every suspect has their own uni
 - **Interactive detective notepad** — take notes and build your case in real time
 - **Fresh AI generation** — all suspect responses are generated on game start via the Anthropic API
 
----
-
-## Tech Stack
-
-| Layer | Technology |
-|---|---|
-| Frontend | HTML / CSS / JavaScript (or React) |
-| AI Agents | Anthropic Claude API (`claude-sonnet-4-20250514`) |
-| Styling | Noir / VHS retro theme |
-| Hosting | TBD |
 
 ---
 
@@ -60,10 +50,10 @@ Each playthrough is powered by **AI agents** — every suspect has their own uni
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/dead-on-arrival.git
+git clone https://github.com/Ashayumi/QuackHacks2026
 
 # Navigate into the project
-cd dead-on-arrival
+cd QuackHacks2026
 
 # Install dependencies
 npm install
