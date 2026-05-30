@@ -1,4 +1,12 @@
-<link rel="stylesheet" href="css/game.css" />
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dead on Arrival — A Murder Mystery Detective Game</title>
+  <link rel="stylesheet" href="css/game.css" />
+</head>
+<body>
 
 <div class="doa-root">
   <div class="scanlines"></div>
@@ -14,38 +22,8 @@
 
   <div class="main-area">
 
-    <div class="suspect-sidebar">
+    <div class="suspect-sidebar" id="suspect-sidebar">
       <div class="sidebar-label">SUSPECTS</div>
-
-      <div class="suspect-item active" data-id="0" onclick="selectSuspect(0)">
-        <div class="suspect-name">Victor Hale</div>
-        <div class="suspect-role">Retired Judge</div>
-        <div class="suspect-status playing">▶ PLAYING</div>
-      </div>
-
-      <div class="suspect-item" data-id="1" onclick="selectSuspect(1)">
-        <div class="suspect-name">Elena Marsh</div>
-        <div class="suspect-role">Photographer</div>
-        <div class="suspect-status unreviewed">○ UNREVIEWED</div>
-      </div>
-
-      <div class="suspect-item" data-id="2" onclick="selectSuspect(2)">
-        <div class="suspect-name">Marcus Webb</div>
-        <div class="suspect-role">Sales Rep</div>
-        <div class="suspect-status unreviewed">○ UNREVIEWED</div>
-      </div>
-
-      <div class="suspect-item" data-id="3" onclick="selectSuspect(3)">
-        <div class="suspect-name">Dorothea Crane</div>
-        <div class="suspect-role">Retired Actress</div>
-        <div class="suspect-status unreviewed">○ UNREVIEWED</div>
-      </div>
-
-      <div class="suspect-item" data-id="4" onclick="selectSuspect(4)">
-        <div class="suspect-name">Nolan Price</div>
-        <div class="suspect-role">Private Chef</div>
-        <div class="suspect-status unreviewed">○ UNREVIEWED</div>
-      </div>
     </div>
 
     <div class="viewer-area">
@@ -53,12 +31,12 @@
       <div class="vhs-screen">
         <div class="tracking-line"></div>
         <div class="vhs-timestamp" id="vhs-time">00:00:00:00</div>
-        <div class="vhs-channel">CH 01</div>
+        <div class="vhs-channel" id="vhs-channel">CH 01</div>
 
         <div class="tape-content">
           <div class="tape-playing-label" id="playing-label">▶ NOW PLAYING — TAPE 001</div>
-          <div class="tape-suspect-name" id="tape-suspect-name">VICTOR HALE</div>
-          <div class="tape-question" id="tape-question">Q1 — WHERE WERE YOU BETWEEN 8PM AND 10PM?</div>
+          <div class="tape-suspect-name" id="tape-suspect-name">— — —</div>
+          <div class="tape-question" id="tape-question"></div>
           <div class="tape-answer loading" id="tape-answer">[ AWAITING AI RESPONSE... ]</div>
         </div>
       </div>
@@ -107,5 +85,5 @@
 </div>
 
 <script src="js/game.js"></script>
-  </body>
+</body>
 </html>
