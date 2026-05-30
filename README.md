@@ -4,7 +4,7 @@
 
 ---
 
-## 📖 Overview
+## Overview
 
 **GAME NAME** is a browser-based murder mystery game inspired by the classic board game *Clue*. Players step into the role of a detective tasked with solving a murder by reviewing pre-recorded interrogation tapes of 5 suspects. Using an in-game notepad, players cross-reference answers, identify contradictions, and make their accusation — before the killer gets away.
 
@@ -12,7 +12,7 @@ Each playthrough is powered by **AI agents** — every suspect has their own uni
 
 ---
 
-## 🎮 How It Works
+## How It Works
 
 1. **A murder has been committed.** You receive the case file with the victim's profile and the crime scenario.
 2. **Five suspects have been recorded.** Pull up each suspect's interrogation tape and listen to their answers to the same 5 questions.
@@ -21,7 +21,7 @@ Each playthrough is powered by **AI agents** — every suspect has their own uni
 
 ---
 
-## ✨ Features
+## Features
 
 - **5 unique AI-powered suspects** — each with their own personality, backstory, and alibi
 - **Randomized killer every playthrough** — the guilty party changes each game
@@ -31,7 +31,7 @@ Each playthrough is powered by **AI agents** — every suspect has their own uni
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Layer | Technology |
 |---|---|
@@ -42,7 +42,7 @@ Each playthrough is powered by **AI agents** — every suspect has their own uni
 
 ---
 
-## 🗂️ Project Phases
+## Project Phases
 
 | Phase | Description |
 |---|---|
@@ -56,7 +56,7 @@ Each playthrough is powered by **AI agents** — every suspect has their own uni
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ```bash
 # Clone the repository
@@ -78,7 +78,7 @@ npm run dev
 
 ---
 
-## 🔑 Environment Variables
+## Environment Variables
 
 ```env
 ANTHROPIC_API_KEY=your_api_key_here
@@ -88,7 +88,7 @@ ANTHROPIC_API_KEY=your_api_key_here
 
 ---
 
-## 👥 Team
+## Team
 
 | Name | Role |
 |---|---|
@@ -99,12 +99,12 @@ ANTHROPIC_API_KEY=your_api_key_here
 
 ---
 
-## 🏆 Hackathon
+## Hackathon
 
 This project was built as part of **Quack Hacks 2026** — a hackathon celebrating creativity, collaboration, and code.
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License. See `LICENSE` for details.
