@@ -50,6 +50,7 @@
         </div>
         <span class="time-label" id="q-counter">Q 1 / 5</span>
         <button class="ctrl-btn" onclick="ejectTape()">⏏ EJECT</button>
+        <button class="ctrl-btn" id="music-toggle" onclick="toggleMusic()">🔊 MUSIC</button>
       </div>
 
       <div class="question-nav" id="question-nav">
@@ -86,6 +87,11 @@
 
 <audio id="tape-audio" preload="none"></audio>
 
+<!-- Hidden YouTube player for ambient background music (offscreen, not display:none so it can play) -->
+<div id="yt-music" style="position:fixed;left:-9999px;top:0;width:320px;height:180px;" aria-hidden="true"></div>
+
 <script src="js/game.js"></script>
+<script src="js/music.js"></script>
+<script src="https://www.youtube.com/iframe_api"></script>
 </body>
 </html>
