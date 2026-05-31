@@ -24,7 +24,7 @@ const MODEL = 'gemini-2.5-flash';
 // Until you fill them in, the DEFAULT_VOICE is used so the feature still works.
 
 const ELEVEN_KEY = process.env.ELEVENLABS_API_KEY;
-const TTS_MODEL = 'eleven_multilingual_v2';
+const TTS_MODEL = 'eleven_v3'; // most expressive model — supports [audio tags] like [giggles], [sighs]
 const DEFAULT_VOICE = '21m00Tcm4TlvDq8ikWAM'; // "Rachel" — a public ElevenLabs voice used as a fallback
 
 const VOICES = {
@@ -40,6 +40,13 @@ function resolveVoice(suspectId) {
   const v = VOICES[suspectId];
   // Use the mapped voice only if it has actually been set (not a placeholder)
   return v && !v.startsWith('VOICE_ID_') ? v : DEFAULT_VOICE;
+}
+
+// Convert *action* stage directions (what the AI writes) into ElevenLabs v3
+// audio tags [action] so the voice performs them instead of reading them aloud.
+// e.g. "Oh! *giggles* I was on break." -> "Oh! [giggles] I was on break."
+function toAudioTags(text) {
+  return text.replace(/\*([^*\n]+)\*/g, (_, inner) => `[${inner.trim()}]`);
 }
 
 // ============================================================
@@ -145,6 +152,10 @@ ${roleInstruction}
 
 RESPONSE FORMAT RULES:
 - Answer each question in your own voice and personality
+- Where it fits your personality, you may include short AUDIBLE reactions wrapped
+  in asterisks — e.g. *giggles*, *sighs*, *nervous laugh*, *clears throat*, *scoffs*.
+  These get performed as real sound, so only use ones that make a noise (not silent
+  physical actions like *adjusts glasses*). Use them sparingly — at most one or two per answer.
 - Keep each answer to 2-4 sentences — no more
 - Label each answer exactly as: "Answer 1:", "Answer 2:", "Answer 3:", "Answer 4:", "Answer 5:"
 - Do not number or restate the questions
@@ -241,7 +252,7 @@ app.post('/api/tts', async (req, res) => {
           'Accept': 'audio/mpeg'
         },
         body: JSON.stringify({
-          text,
+          text: toAudioTags(text),
           model_id: TTS_MODEL,
           voice_settings: { stability: 0.4, similarity_boost: 0.8 }
         })
