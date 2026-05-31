@@ -9,6 +9,7 @@ let gameState = {
   currentSuspect: null,
   currentQuestion: 0,
   reviewed: new Set(),
+  audioCache: {},   // key `${suspectId}:${qIndex}` -> object URL of voiced audio
 };
 
 // ============================================================
@@ -105,6 +106,9 @@ function updateViewer() {
   const qIndex    = gameState.currentQuestion;
 
   if (!tape) return;
+
+  // Stop any audio from the previous tape/question and reset the play button
+  stopAudio();
 
   const entry = tape.answers[qIndex];
   const tapeNumber = (gameState.suspects.findIndex(s => s.id === suspectId) + 1)
@@ -243,13 +247,101 @@ function showLoading(isLoading) {
   }
 }
 
-function togglePlay() {
+function setPlayButton(state) {
+  // state: 'play' | 'pause' | 'loading'
   const btn = document.getElementById('play-pause-btn');
-  const isPlaying = btn.textContent.includes('PAUSE');
-  btn.textContent = isPlaying ? '▶ PLAY' : '⏸ PAUSE';
+  if (!btn) return;
+  if (state === 'loading') { btn.textContent = '⏳ LOADING'; btn.disabled = true; }
+  else if (state === 'pause') { btn.textContent = '⏸ PAUSE'; btn.disabled = false; }
+  else { btn.textContent = '▶ PLAY'; btn.disabled = false; }
+}
+
+// Play / pause the ElevenLabs-voiced audio for the current tape answer
+async function togglePlay() {
+  const audio = document.getElementById('tape-audio');
+  if (!audio) return;
+
+  // If audio is currently playing, pause it
+  if (!audio.paused && audio.src) {
+    audio.pause();
+    setPlayButton('play');
+    return;
+  }
+
+  // If audio is already loaded for this answer (paused mid-way), resume
+  if (audio.src && audio.dataset.key === currentAudioKey()) {
+    await audio.play();
+    setPlayButton('pause');
+    return;
+  }
+
+  // Otherwise fetch/voice the current answer, then play
+  await playCurrentAnswer();
+}
+
+function currentAudioKey() {
+  return `${gameState.currentSuspect}:${gameState.currentQuestion}`;
+}
+
+async function playCurrentAnswer() {
+  const suspectId = gameState.currentSuspect;
+  const qIndex    = gameState.currentQuestion;
+  const tape      = gameState.tapes[suspectId];
+  if (!tape) return;
+
+  const text = tape.answers[qIndex].answer;
+  if (!text || text === 'No response recorded.') return;
+
+  const audio = document.getElementById('tape-audio');
+  const key = `${suspectId}:${qIndex}`;
+
+  try {
+    let url = gameState.audioCache[key];
+
+    // Not cached yet — request it from the server (ElevenLabs TTS)
+    if (!url) {
+      setPlayButton('loading');
+      const res = await fetch('/api/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ suspectId, text })
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `TTS failed (${res.status})`);
+      }
+
+      const blob = await res.blob();
+      url = URL.createObjectURL(blob);
+      gameState.audioCache[key] = url;
+    }
+
+    audio.src = url;
+    audio.dataset.key = key;
+    await audio.play();
+    setPlayButton('pause');
+
+  } catch (err) {
+    console.error('[ERROR] playCurrentAnswer:', err.message);
+    setPlayButton('play');
+    const label = document.getElementById('playing-label');
+    if (label) label.textContent = '⚠ AUDIO UNAVAILABLE';
+  }
+}
+
+function stopAudio() {
+  const audio = document.getElementById('tape-audio');
+  if (audio) {
+    audio.pause();
+    audio.removeAttribute('src');
+    audio.dataset.key = '';
+  }
+  setPlayButton('play');
 }
 
 function ejectTape() {
+  stopAudio();
   document.getElementById('tape-answer').textContent = '[ NO TAPE LOADED ]';
   document.getElementById('tape-answer').className = 'tape-answer glitch';
   document.getElementById('tape-suspect-name').textContent = '— — —';
@@ -273,5 +365,11 @@ if (notepad) {
 // ============================================================
 //   INIT
 // ============================================================
+
+// When an answer finishes playing, reset the button to PLAY
+window.addEventListener('DOMContentLoaded', () => {
+  const audio = document.getElementById('tape-audio');
+  if (audio) audio.addEventListener('ended', () => setPlayButton('play'));
+});
 
 window.addEventListener('DOMContentLoaded', startGame);

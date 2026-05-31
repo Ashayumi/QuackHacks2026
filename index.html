@@ -43,7 +43,7 @@
 
       <div class="controls-bar">
         <button class="ctrl-btn" onclick="prevQuestion()">◀ PREV</button>
-        <button class="ctrl-btn active-btn" id="play-pause-btn" onclick="togglePlay()">⏸ PAUSE</button>
+        <button class="ctrl-btn active-btn" id="play-pause-btn" onclick="togglePlay()">▶ PLAY</button>
         <button class="ctrl-btn" onclick="nextQuestion()">NEXT ▶</button>
         <div class="progress-bar">
           <div class="progress-fill" id="progress-fill" style="width:20%"></div>
@@ -83,6 +83,8 @@
     </button>
   </div>
 </div>
+
+<audio id="tape-audio" preload="none"></audio>
 
 <script src="js/game.js"></script>
 </body>

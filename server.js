@@ -17,6 +17,32 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 const MODEL = 'gemini-2.5-flash';
 
 // ============================================================
+//   ELEVENLABS TEXT-TO-SPEECH CONFIG
+// ============================================================
+// Reads ELEVENLABS_API_KEY from .env. Each suspect maps to an ElevenLabs
+// voice_id (find these in your ElevenLabs dashboard → Voices → "..." → Copy ID).
+// Until you fill them in, the DEFAULT_VOICE is used so the feature still works.
+
+const ELEVEN_KEY = process.env.ELEVENLABS_API_KEY;
+const TTS_MODEL = 'eleven_multilingual_v2';
+const DEFAULT_VOICE = '21m00Tcm4TlvDq8ikWAM'; // "Rachel" — a public ElevenLabs voice used as a fallback
+
+const VOICES = {
+  suspect_1: 'VOICE_ID_BILL',       // Bill Keady
+  suspect_2: 'VOICE_ID_STEPHANIE',  // Stephanie Beinart
+  suspect_3: 'VOICE_ID_CHRIS',      // Chris Yoder
+  suspect_4: 'VOICE_ID_IAN',        // Ian Beard
+  suspect_5: 'VOICE_ID_BEATRIZ',    // Beatriz Arevalo
+  suspect_6: 'VOICE_ID_JACOB'       // Jacob Hurst
+};
+
+function resolveVoice(suspectId) {
+  const v = VOICES[suspectId];
+  // Use the mapped voice only if it has actually been set (not a placeholder)
+  return v && !v.startsWith('VOICE_ID_') ? v : DEFAULT_VOICE;
+}
+
+// ============================================================
 //   GAME CONFIG
 // ============================================================
 
@@ -25,49 +51,57 @@ const QUESTIONS = [
   "Can you describe your relationship with the victim?",
   "Did you see anyone acting suspiciously that evening?",
   "Is there anyone at the event who you believe had a reason to harm the victim?",
-  "Did you hear or see anything unusual in the hour before the body was discovered?"
+  "Describe your normal day at work."
 ];
 
 const SUSPECTS = {
   suspect_1: {
-    name: "Victor Hale",
-    occupation: "Retired Judge",
-    personality: "Cold, calculating, speaks in precise measured sentences. Rarely shows emotion. Chooses words with surgical precision. Pauses before answering as if weighing the legal implications of every statement.",
-    backstory: "A once-respected judge with a reputation for harsh sentencing. Rumored to have accepted bribes years ago. Has a deeply buried secret involving the victim that he has kept hidden for decades.",
-    alibi: "Claims to have been in the library reading alone all evening. No witnesses.",
-    relationship_to_victim: "Former professional associate. The victim had recently discovered evidence of Victor's past corruption and was threatening to expose him."
+    name: "Bill Keady",
+    occupation: "General Manager",
+    personality: "Around 30 years old, short tempered adult male, rough personality, normally on edge",
+    backstory: "Head manager, hates people who call out, also wont take disciplinary action towards the victim for some reason? Maybe he had plans of his own...",
+    alibi: "Claims to be in a conference call when the murder occured",
+    relationship_to_victim: "Boss"
   },
   suspect_2: {
-    name: "Elena Marsh",
-    occupation: "Event Photographer",
-    personality: "Nervous energy, speaks quickly, deflects with humor when uncomfortable. Fidgets. Often trails off mid-sentence. Genuinely warm but visibly anxious throughout questioning.",
-    backstory: "A freelance photographer hired to document the evening. Had a bitter dispute with the victim over unpaid work — the victim owed her three months of fees and had publicly humiliated her at a previous event.",
-    alibi: "Says she was setting up equipment in the east hallway until 9pm, then circulating the party. Several guests may have seen her.",
-    relationship_to_victim: "Professional — she was hired by the victim. Their relationship had soured badly over money."
+    name: "Stephanie Beinart",
+    occupation: "Assistant Manager",
+    personality: "Late 40s woman, loves to talk alot, will add unnecessary words, especially and im like every few sentences, loud",
+    backstory: "Always stays after work hours, workaholic, Larry never stays a minute after his shift. Maybe theres something there...",
+    alibi: "She was blowing up balloons while talking to a customer",
+    relationship_to_victim: "Superior"
   },
   suspect_3: {
-    name: "Marcus Webb",
-    occupation: "Pharmaceutical Sales Rep",
-    personality: "Charming, disarmingly confident, almost too relaxed. Answers questions with questions. Smiles at inappropriate moments. Very practiced at controlling conversations.",
-    backstory: "A smooth-talking salesman who knew the victim through a mutual business deal that collapsed — Marcus lost significant money and blamed the victim entirely. Has a history of bending rules.",
-    alibi: "Claims he was on a phone call in the garden for most of the evening. Cannot produce phone records to verify.",
-    relationship_to_victim: "Former business partner. The deal that collapsed left Marcus in serious financial trouble."
+    name: "Chris Yoder",
+    occupation: "Floor Associate",
+    personality: "Older woman, sweeter personality. Can snap at someone if she is strongly provoked. Normally forgets about a lot of things",
+    backstory: "Has retired like 6 times, keeps coming bacl. Why would someone do that? Seems suspicious.",
+    alibi: "Stocking the floor, updating price tags",
+    relationship_to_victim: "Coworker"
   },
   suspect_4: {
-    name: "Dorothea Crane",
-    occupation: "Retired Actress",
-    personality: "Theatrical, dramatic, prone to monologuing. Treats every question like a performance. Fiercely protective of her legacy and public image. Occasionally lets the mask slip and reveals genuine bitterness.",
-    backstory: "A faded star of the stage attending as guest of honor. The victim had written a devastating tell-all memoir chapter about Dorothea that was set to publish next month, threatening to destroy what remained of her reputation.",
-    alibi: "Says she was in the drawing room entertaining guests all evening. Many witnesses — but she slipped away twice that no one can fully account for.",
-    relationship_to_victim: "Long-standing feud going back fifteen years. Recently escalated due to the memoir."
+    name: "Ian Beard",
+    occupation: "Tech Supervisor",
+    personality: "Very flat personality. Believes that he knows everything and has a superiority complex. Will go out of his way to correct you",
+    backstory: "Usually the only manager when Larry comes in, he's used to his callouts at this point. However its very possible he could have snapped after last week",
+    alibi: "He was fixing a computer at the front register",
+    relationship_to_victim: "Coworker"
   },
   suspect_5: {
-    name: "Nolan Price",
-    occupation: "Private Chef",
-    personality: "Quiet, methodical, economical with words. Speaks only when necessary. Observant — notices details others miss. Calm in a way that feels practiced rather than natural.",
-    backstory: "Hired to cater the evening. Has a sealed juvenile record he is fiercely protective of. The victim had somehow obtained information about his past and had been quietly blackmailing him for six months.",
-    alibi: "Claims he never left the kitchen except to deliver dishes to the dining room. Kitchen staff can partially verify this but there is a 40-minute gap unaccounted for.",
-    relationship_to_victim: "Victim was blackmailing Nolan. Nolan had recently refused to keep paying."
+    name: "Beatriz Arevalo",
+    occupation: "Floor Associate",
+    personality: "Early 20s woman, Very bubbly personality. Laughs at a lot of stuff. Does not get mad at a lot of things. Struggles explaining things. Super squishy. Incredibly artistic. And loves to mimic animals. REALLY into yaoi for some reason, and is definitely the weird one of the group. But also has some surprisingly good advice/ insight into lots of things",
+    backstory: "Straight uop thinks Larry is useless, I heard her say it. Do i need to say much more?",
+    alibi: "Was on break, eating inside of the break room.",
+    relationship_to_victim: "Coworker"
+  },
+  suspect_6: {
+    name: "Jacob Hurst",
+    occupation: "Print Associate",
+    personality: "Can be really nice, but can also be very rude. Often its a coin flip when it comes to how he handles a situation. Always sarcastic saying like Alright Buddy",
+    backstory: "Used to think Larry was the GOAT, then he understood the truth. Sometimes betrayal is too much to handle.",
+    alibi: "Was helping someone at the print counter.",
+    relationship_to_victim: "Coworker"
   }
 };
 
@@ -79,14 +113,14 @@ function buildSystemPrompt(suspectId, isKiller) {
   const s = SUSPECTS[suspectId];
 
   const roleInstruction = isKiller
-    ? `YOU ARE THE KILLER. You murdered Reginald Ashworth.
+    ? `YOU ARE THE KILLER. You murdered Larry Misaras.
        You must lie convincingly but subtly. Do NOT confess under any circumstances.
        Weave in small, detectable inconsistencies — things that a sharp detective
        cross-referencing your answers with other suspects might catch.
        For example: claim you were somewhere that another innocent suspect will
        contradict. Be slightly evasive on the time gap. Show just a flicker of
        emotion you quickly suppress. Never over-explain. Liars over-explain.`
-    : `YOU ARE INNOCENT. You did not kill Reginald Ashworth.
+    : `YOU ARE INNOCENT. You did not kill Larry Misaras.
        Answer honestly according to your alibi and your genuine feelings.
        You may be nervous, defensive, or emotional — that fits your personality —
        but your answers should be internally consistent and not contradict
@@ -102,9 +136,10 @@ YOUR ALIBI FOR THE NIGHT: ${s.alibi}
 
 YOUR RELATIONSHIP WITH THE VICTIM: ${s.relationship_to_victim}
 
-THE SITUATION: You are being questioned as a suspect in the murder of Reginald Ashworth,
-a wealthy financier found dead in his private study during his own dinner party on October 14th
-at Ashworth Manor. You are speaking into a recorded tape as part of the official investigation.
+THE SITUATION: Staples is a normal place, or is what it looks like. Office supplies, print services, party supplies for some wild reason. But 
+one of their employees has been murdered! Larry was a cashier, been around for years. Unfortunately, he was a loose cannon, always calling out on shifts, the biggest yapper in the store
+and regardless of his tenure, always seemed to need help. Everyone had a reason to take care of him for good, but so many disgruntled employees
+its hard to know who exactly did it. See if you can get some information out of everyone to solve this mystery for good, otherwise you're fired.
 
 ${roleInstruction}
 
@@ -179,6 +214,53 @@ app.post('/api/start-game', async (req, res) => {
   } catch (err) {
     console.error('[ERROR] /api/start-game:', err.message);
     res.status(500).json({ error: 'Failed to generate tapes. Please try again.' });
+  }
+});
+
+// Voice a tape answer with ElevenLabs TTS — returns audio/mpeg bytes
+app.post('/api/tts', async (req, res) => {
+  try {
+    const { suspectId, text } = req.body;
+
+    if (!text || !text.trim()) {
+      return res.status(400).json({ error: 'Missing text to voice.' });
+    }
+    if (!ELEVEN_KEY || ELEVEN_KEY === 'your_elevenlabs_api_key_here') {
+      return res.status(500).json({ error: 'ELEVENLABS_API_KEY is not set in .env.' });
+    }
+
+    const voiceId = resolveVoice(suspectId);
+
+    const elevenRes = await fetch(
+      `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
+      {
+        method: 'POST',
+        headers: {
+          'xi-api-key': ELEVEN_KEY,
+          'Content-Type': 'application/json',
+          'Accept': 'audio/mpeg'
+        },
+        body: JSON.stringify({
+          text,
+          model_id: TTS_MODEL,
+          voice_settings: { stability: 0.4, similarity_boost: 0.8 }
+        })
+      }
+    );
+
+    if (!elevenRes.ok) {
+      const detail = await elevenRes.text();
+      console.error('[ERROR] /api/tts:', elevenRes.status, detail);
+      return res.status(502).json({ error: 'ElevenLabs TTS request failed.' });
+    }
+
+    const audio = Buffer.from(await elevenRes.arrayBuffer());
+    res.set('Content-Type', 'audio/mpeg');
+    res.send(audio);
+
+  } catch (err) {
+    console.error('[ERROR] /api/tts:', err.message);
+    res.status(500).json({ error: 'Failed to generate audio.' });
   }
 });
 
