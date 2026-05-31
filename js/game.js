@@ -1,99 +1,252 @@
-const suspects = [
-  { name: "Victor Hale",     role: "Retired Judge",    tape: "001", ch: "CH 01" },
-  { name: "Elena Marsh",     role: "Photographer",     tape: "002", ch: "CH 02" },
-  { name: "Marcus Webb",     role: "Sales Rep",        tape: "003", ch: "CH 03" },
-  { name: "Dorothea Crane",  role: "Retired Actress",  tape: "004", ch: "CH 04" },
-  { name: "Nolan Price",     role: "Private Chef",     tape: "005", ch: "CH 05" },
-];
+// ============================================================
+//   game.js — Frontend logic, talks to server.js via fetch
+// ============================================================
 
-const questions = [
-  "WHERE WERE YOU BETWEEN 8PM AND 10PM?",
-  "DESCRIBE YOUR RELATIONSHIP WITH THE VICTIM.",
-  "DID YOU SEE ANYONE ACTING SUSPICIOUSLY?",
-  "WHO HAD A REASON TO HARM THE VICTIM?",
-  "WHAT DID YOU HEAR BEFORE THE BODY WAS FOUND?",
-];
+let gameState = {
+  sessionId: null,
+  tapes: {},
+  suspects: [],
+  currentSuspect: null,
+  currentQuestion: 0,
+  reviewed: new Set(),
+};
 
-let currentSuspect = 0;
-let currentQuestion = 0;
-let reviewed = new Set();
-let playing = true;
+// ============================================================
+//   BOOT — called on page load
+// ============================================================
 
-function selectSuspect(id) {
+async function startGame() {
+  showLoading(true);
+
+  try {
+    const res = await fetch('/api/start-game', { method: 'POST' });
+    const data = await res.json();
+
+    if (data.error) throw new Error(data.error);
+
+    gameState.sessionId = data.sessionId;
+    gameState.tapes     = data.tapes;
+    gameState.suspects  = data.suspects;
+
+    renderSidebar();
+    selectSuspect(data.suspects[0].id);
+    showLoading(false);
+
+  } catch (err) {
+    console.error('[ERROR] startGame:', err.message);
+    document.getElementById('tape-answer').textContent = '[ ERROR LOADING TAPES — REFRESH TO RETRY ]';
+    document.getElementById('tape-answer').className = 'tape-answer glitch';
+    showLoading(false);
+  }
+}
+
+// ============================================================
+//   SIDEBAR
+// ============================================================
+
+function renderSidebar() {
+  const sidebar = document.getElementById('suspect-sidebar');
+  sidebar.innerHTML = '<div class="sidebar-label">SUSPECTS</div>';
+
+  gameState.suspects.forEach(suspect => {
+    const item = document.createElement('div');
+    item.className = 'suspect-item';
+    item.dataset.id = suspect.id;
+    item.onclick = () => selectSuspect(suspect.id);
+
+    item.innerHTML = `
+      <div class="suspect-name">${suspect.name}</div>
+      <div class="suspect-role">${suspect.occupation}</div>
+      <div class="suspect-status unreviewed" id="status-${suspect.id}">○ UNREVIEWED</div>
+    `;
+
+    sidebar.appendChild(item);
+  });
+}
+
+// ============================================================
+//   SELECT SUSPECT
+// ============================================================
+
+function selectSuspect(suspectId) {
+  // Deactivate all
   document.querySelectorAll('.suspect-item').forEach(el => {
     el.classList.remove('active');
-    const s = el.querySelector('.suspect-status');
-    if (!reviewed.has(parseInt(el.dataset.id))) {
-      s.textContent = '○ UNREVIEWED';
-      s.className = 'suspect-status unreviewed';
+    const id = el.dataset.id;
+    const statusEl = document.getElementById(`status-${id}`);
+    if (!gameState.reviewed.has(id) && statusEl) {
+      statusEl.textContent = '○ UNREVIEWED';
+      statusEl.className = 'suspect-status unreviewed';
     }
   });
 
-  currentSuspect = id;
-  currentQuestion = 0;
-  const el = document.querySelector(`.suspect-item[data-id="${id}"]`);
-  el.classList.add('active');
-  const s = el.querySelector('.suspect-status');
-  s.textContent = '▶ PLAYING';
-  s.className = 'suspect-status playing';
+  // Activate selected
+  gameState.currentSuspect = suspectId;
+  gameState.currentQuestion = 0;
+
+  const activeEl = document.querySelector(`.suspect-item[data-id="${suspectId}"]`);
+  if (activeEl) {
+    activeEl.classList.add('active');
+    const statusEl = document.getElementById(`status-${suspectId}`);
+    statusEl.textContent = '▶ PLAYING';
+    statusEl.className = 'suspect-status playing';
+  }
 
   updateViewer();
 }
 
-function updateViewer() {
-  const sus = suspects[currentSuspect];
-  document.getElementById('playing-label').textContent = `▶ NOW PLAYING — TAPE ${sus.tape}`;
-  document.getElementById('tape-suspect-name').textContent = sus.name.toUpperCase();
-  document.getElementById('tape-question').textContent = `Q${currentQuestion+1} — ${questions[currentQuestion]}`;
-  document.getElementById('tape-answer').textContent = '[ AI RESPONSE WILL RENDER HERE ]';
-  document.getElementById('tape-answer').className = 'tape-answer loading';
-  document.getElementById('vhs-channel').textContent = sus.ch;
-  document.getElementById('q-counter').textContent = `Q ${currentQuestion+1} / 5`;
-  document.getElementById('progress-fill').style.width = `${((currentQuestion+1)/5)*100}%`;
-  document.getElementById('vhs-time').textContent = `00:0${currentSuspect}:0${currentQuestion}:00`;
+// ============================================================
+//   VIEWER
+// ============================================================
 
-  document.querySelectorAll('.q-pill').forEach((p, i) => {
-    p.classList.remove('active', 'answered');
-    if (i < currentQuestion) p.classList.add('answered');
-    if (i === currentQuestion) p.classList.add('active');
+function updateViewer() {
+  const suspectId = gameState.currentSuspect;
+  const tape      = gameState.tapes[suspectId];
+  const qIndex    = gameState.currentQuestion;
+
+  if (!tape) return;
+
+  const entry = tape.answers[qIndex];
+  const tapeNumber = (gameState.suspects.findIndex(s => s.id === suspectId) + 1)
+    .toString().padStart(3, '0');
+
+  document.getElementById('playing-label').textContent     = `▶ NOW PLAYING — TAPE ${tapeNumber}`;
+  document.getElementById('tape-suspect-name').textContent = tape.suspectName.toUpperCase();
+  document.getElementById('tape-question').textContent     = `Q${qIndex + 1} — ${entry.question.toUpperCase()}`;
+  document.getElementById('tape-answer').textContent       = entry.answer;
+  document.getElementById('tape-answer').className         = 'tape-answer';
+  document.getElementById('vhs-channel').textContent       = `CH 0${gameState.suspects.findIndex(s => s.id === suspectId) + 1}`;
+  document.getElementById('q-counter').textContent         = `Q ${qIndex + 1} / 5`;
+  document.getElementById('progress-fill').style.width     = `${((qIndex + 1) / 5) * 100}%`;
+  document.getElementById('vhs-time').textContent          = `00:0${gameState.suspects.findIndex(s => s.id === suspectId)}:0${qIndex}:00`;
+
+  // Update Q pills
+  document.querySelectorAll('.q-pill').forEach((pill, i) => {
+    pill.classList.remove('active', 'answered');
+    if (i < qIndex) pill.classList.add('answered');
+    if (i === qIndex) pill.classList.add('active');
   });
 }
 
+// ============================================================
+//   NAVIGATION
+// ============================================================
+
 function nextQuestion() {
-  if (currentQuestion < 4) {
-    currentQuestion++;
+  if (gameState.currentQuestion < 4) {
+    gameState.currentQuestion++;
     updateViewer();
   } else {
-    reviewed.add(currentSuspect);
-    const el = document.querySelector(`.suspect-item[data-id="${currentSuspect}"]`);
-    el.classList.add('watched');
-    const s = el.querySelector('.suspect-status');
-    s.textContent = '✓ REVIEWED';
-    s.className = 'suspect-status reviewed';
-    document.getElementById('reviewed-count').textContent = reviewed.size;
-    if (reviewed.size >= 5) {
-      document.getElementById('accuse-btn').disabled = false;
-      document.getElementById('accuse-ready').textContent = 'YES';
-      document.getElementById('accuse-ready').style.color = '#cc4444';
-    }
+    markReviewed(gameState.currentSuspect);
   }
 }
 
 function prevQuestion() {
-  if (currentQuestion > 0) {
-    currentQuestion--;
+  if (gameState.currentQuestion > 0) {
+    gameState.currentQuestion--;
     updateViewer();
   }
 }
 
-function jumpToQuestion(q) {
-  currentQuestion = q;
+function jumpToQuestion(index) {
+  gameState.currentQuestion = index;
   updateViewer();
 }
 
+function markReviewed(suspectId) {
+  gameState.reviewed.add(suspectId);
+
+  const el = document.querySelector(`.suspect-item[data-id="${suspectId}"]`);
+  if (el) el.classList.add('watched');
+
+  const statusEl = document.getElementById(`status-${suspectId}`);
+  if (statusEl) {
+    statusEl.textContent = '✓ REVIEWED';
+    statusEl.className = 'suspect-status reviewed';
+  }
+
+  document.getElementById('reviewed-count').textContent = gameState.reviewed.size;
+
+  // Unlock accusation button once all suspects reviewed
+  if (gameState.reviewed.size >= gameState.suspects.length) {
+    document.getElementById('accuse-btn').disabled = false;
+    document.getElementById('accuse-ready').textContent = 'YES';
+    document.getElementById('accuse-ready').style.color = '#cc4444';
+  }
+}
+
+// ============================================================
+//   ACCUSATION
+// ============================================================
+
+function makeAccusation() {
+  const suspectList = gameState.suspects
+    .map(s => `${s.id}: ${s.name}`)
+    .join('\n');
+
+  const input = prompt(
+    `Who do you accuse of murdering Reginald Ashworth?\n\nEnter the number:\n${
+      gameState.suspects.map((s, i) => `${i + 1}. ${s.name}`).join('\n')
+    }`
+  );
+
+  const index = parseInt(input) - 1;
+  if (isNaN(index) || index < 0 || index >= gameState.suspects.length) {
+    alert('Invalid selection.');
+    return;
+  }
+
+  const accusedId = gameState.suspects[index].id;
+  submitAccusation(accusedId);
+}
+
+async function submitAccusation(accusedId) {
+  try {
+    const res = await fetch('/api/accuse', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sessionId: gameState.sessionId,
+        accusedId
+      })
+    });
+
+    const data = await res.json();
+    showResult(data);
+
+  } catch (err) {
+    console.error('[ERROR] submitAccusation:', err.message);
+    alert('Failed to submit accusation. Please try again.');
+  }
+}
+
+function showResult(data) {
+  const msg = data.correct
+    ? `✓ CASE CLOSED\n\n${data.message}\n\nYou identified the killer.`
+    : `✗ WRONG ACCUSATION\n\n${data.message}\n\nThe case goes cold.`;
+
+  alert(msg);
+}
+
+// ============================================================
+//   UI HELPERS
+// ============================================================
+
+function showLoading(isLoading) {
+  const answer = document.getElementById('tape-answer');
+  if (isLoading) {
+    answer.textContent = '[ RETRIEVING EVIDENCE TAPES... ]';
+    answer.className = 'tape-answer loading';
+    document.getElementById('tape-suspect-name').textContent = '— — —';
+    document.getElementById('tape-question').textContent = '';
+    document.getElementById('playing-label').textContent = '⏳ DECRYPTING FILES';
+  }
+}
+
 function togglePlay() {
-  playing = !playing;
-  document.getElementById('play-pause-btn').textContent = playing ? '⏸ PAUSE' : '▶ PLAY';
+  const btn = document.getElementById('play-pause-btn');
+  const isPlaying = btn.textContent.includes('PAUSE');
+  btn.textContent = isPlaying ? '▶ PLAY' : '⏸ PAUSE';
 }
 
 function ejectTape() {
@@ -104,13 +257,21 @@ function ejectTape() {
   document.getElementById('playing-label').textContent = '⏏ EJECTED';
 }
 
-function makeAccusation() {
-  alert('ACCUSATION SCREEN — wire up your accusation logic here.');
-}
+// ============================================================
+//   NOTEPAD
+// ============================================================
 
 const notepad = document.getElementById('notepad');
-notepad.addEventListener('input', () => {
-  sessionStorage.setItem('doa_notes', notepad.value);
-});
-const saved = sessionStorage.getItem('doa_notes');
-if (saved) notepad.value = saved;
+if (notepad) {
+  notepad.addEventListener('input', () => {
+    sessionStorage.setItem('doa_notes', notepad.value);
+  });
+  const saved = sessionStorage.getItem('doa_notes');
+  if (saved) notepad.value = saved;
+}
+
+// ============================================================
+//   INIT
+// ============================================================
+
+window.addEventListener('DOMContentLoaded', startGame);
