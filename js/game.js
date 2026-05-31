@@ -10,6 +10,7 @@ let gameState = {
   currentQuestion: 0,
   reviewed: new Set(),
   audioCache: {},   // key `${suspectId}:${qIndex}` -> object URL of voiced audio
+  caseFile: null,   // { bodyLocation, evidence, questions } the player is allowed to see
 };
 
 // ============================================================
@@ -28,7 +29,9 @@ async function startGame() {
     gameState.sessionId = data.sessionId;
     gameState.tapes     = data.tapes;
     gameState.suspects  = data.suspects;
+    gameState.caseFile  = data.caseFile || null;
 
+    populateCaseFile();
     renderSidebar();
     selectSuspect(data.suspects[0].id);
     showLoading(false);
@@ -181,6 +184,30 @@ function markReviewed(suspectId) {
     document.getElementById('accuse-ready').textContent = 'YES';
     document.getElementById('accuse-ready').style.color = '#cc4444';
   }
+}
+
+// ============================================================
+//   CASE FILE
+// ============================================================
+
+// Fill the case-file modal with this case's body location + evidence clue.
+function populateCaseFile() {
+  const cf = gameState.caseFile;
+  const bodyEl = document.getElementById('casefile-body');
+  const evEl   = document.getElementById('casefile-evidence');
+  if (!cf) return;
+  if (bodyEl) bodyEl.textContent = cf.bodyLocation || 'Unknown';
+  if (evEl)   evEl.textContent   = cf.evidence || 'No evidence logged.';
+}
+
+function openCaseFile() {
+  const overlay = document.getElementById('casefile-overlay');
+  if (overlay) overlay.hidden = false;
+}
+
+function closeCaseFile() {
+  const overlay = document.getElementById('casefile-overlay');
+  if (overlay) overlay.hidden = true;
 }
 
 // ============================================================

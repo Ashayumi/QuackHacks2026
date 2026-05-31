@@ -17,6 +17,7 @@
       <span class="rec-label">PLAYBACK MODE</span>
     </div>
     <div class="case-label">EVIDENCE ARCHIVE — CASE #2182</div>
+    <button class="case-file-btn" id="case-file-btn" onclick="openCaseFile()">📁 CASE FILE</button>
     <div class="date-label" id="game-date">OCT 14, 20██</div>
   </div>
 
@@ -82,6 +83,37 @@
     <button class="accuse-btn" id="accuse-btn" disabled onclick="makeAccusation()">
       ⚑ MAKE ACCUSATION
     </button>
+  </div>
+
+  <!-- CASE FILE MODAL -->
+  <div class="casefile-overlay" id="casefile-overlay" hidden>
+    <div class="casefile-modal">
+      <div class="casefile-header">📁 CASE FILE — #2182</div>
+      <div class="casefile-stamp">CONFIDENTIAL</div>
+
+      <div class="casefile-section">
+        <div class="casefile-label">VICTIM</div>
+        <div class="casefile-value">Larry Misaras — Cashier</div>
+      </div>
+
+      <div class="casefile-section">
+        <div class="casefile-label">BODY FOUND IN</div>
+        <div class="casefile-value casefile-room" id="casefile-body">— — —</div>
+      </div>
+
+      <div class="casefile-section">
+        <div class="casefile-label">EVIDENCE AT THE SCENE</div>
+        <div class="casefile-value casefile-evidence" id="casefile-evidence">— — —</div>
+      </div>
+
+      <div class="casefile-hint">
+        Cross-reference the tapes against this evidence. The truth is in the contradictions.
+      </div>
+
+      <div class="casefile-actions">
+        <button class="ctrl-btn" onclick="closeCaseFile()">◀ CLOSE FILE</button>
+      </div>
+    </div>
   </div>
 
   <!-- ACCUSATION MODAL -->
