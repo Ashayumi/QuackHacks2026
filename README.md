@@ -72,10 +72,9 @@ npm run dev
 
 | Name | Role |
 |---|---|
-| Jacob | Game Design & Writing |
-| Beatriz | AI Prompt Engineering |
-| Yael | Frontend Development |
-| TBD | UI/UX Design |
+| Jacob | Game Design, Character Design, Writing, UX Design |
+| Beatriz | AI Prompt Engineering, Character Design |
+| Yael | Frontend Development, API maintenence, UI Design |
 
 ---
 
