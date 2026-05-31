@@ -1,17 +1,3 @@
-// ============================================================
-//   music.js — ambient background music via the YouTube IFrame API
-// ============================================================
-//
-//  HOW TO USE:
-//  1. Paste your YouTube link (or just the 11-char video id) into
-//     YOUTUBE_MUSIC below.  A long ambient track / lo-fi loop works best.
-//  2. That's it. Music starts on the player's first click and loops.
-//     Use the 🔊 MUSIC button (in the controls bar) to mute/unmute.
-//
-//  Note: browsers block autoplay WITH SOUND until the user interacts,
-//  so the track begins on the first click anywhere in the page.
-// ============================================================
-
 const YOUTUBE_MUSIC = 'https://youtu.be/6HMF2rYw4K0?si=6bdNV8MbUd76KCk5'; // <-- paste your link here
 const MUSIC_VOLUME  = 18;  // 0-100, kept low so it sits under the interrogation voices
 const DUCK_VOLUME   = 6;   // volume while a tape voice is playing
