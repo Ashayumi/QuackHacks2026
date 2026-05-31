@@ -11,10 +11,26 @@ let gameState = {
   reviewed: new Set(),
   audioCache: {},   // key `${suspectId}:${qIndex}` -> object URL of voiced audio
   caseFile: null,   // { bodyLocation, evidence, questions } the player is allowed to see
+  finalQuestionUsed: false,  // the one-time "ask all suspects" question
 };
 
 // ============================================================
-//   BOOT — called on page load
+//   MAIN MENU — START CASE
+// ============================================================
+
+// Called when the player clicks "START CASE" on the main menu.
+function beginCase() {
+  const btn = document.getElementById('menu-start-btn');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ OPENING CASE...'; }
+
+  const overlay = document.getElementById('menu-overlay');
+  if (overlay) overlay.classList.add('hidden');
+
+  startGame();
+}
+
+// ============================================================
+//   BOOT — loads the case tapes
 // ============================================================
 
 async function startGame() {
@@ -178,11 +194,14 @@ function markReviewed(suspectId) {
 
   document.getElementById('reviewed-count').textContent = gameState.reviewed.size;
 
-  // Unlock accusation button once all suspects reviewed
+  // Unlock accusation + final-question buttons once all suspects reviewed
   if (gameState.reviewed.size >= gameState.suspects.length) {
     document.getElementById('accuse-btn').disabled = false;
     document.getElementById('accuse-ready').textContent = 'YES';
     document.getElementById('accuse-ready').style.color = '#cc4444';
+
+    const fqBtn = document.getElementById('final-q-btn');
+    if (fqBtn && !gameState.finalQuestionUsed) fqBtn.disabled = false;
   }
 }
 
@@ -208,6 +227,78 @@ function openCaseFile() {
 function closeCaseFile() {
   const overlay = document.getElementById('casefile-overlay');
   if (overlay) overlay.hidden = true;
+}
+
+// ============================================================
+//   FINAL QUESTION (one-time, asked to every suspect)
+// ============================================================
+
+function openFinalQuestion() {
+  if (gameState.finalQuestionUsed) return;
+  document.getElementById('finalq-ask').hidden = false;
+  document.getElementById('finalq-results').hidden = true;
+  document.getElementById('finalq-input').value = '';
+  document.getElementById('finalq-overlay').hidden = false;
+}
+
+function closeFinalQuestion() {
+  document.getElementById('finalq-overlay').hidden = true;
+}
+
+async function sendFinalQuestion() {
+  const input = document.getElementById('finalq-input');
+  const question = input.value.trim();
+  if (!question) { input.focus(); return; }
+
+  const sendBtn = document.getElementById('finalq-send-btn');
+  sendBtn.disabled = true;
+  sendBtn.textContent = '⏳ ASKING...';
+
+  try {
+    const res = await fetch('/api/final-question', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId: gameState.sessionId, question })
+    });
+
+    const data = await res.json();
+    if (!res.ok || data.error) throw new Error(data.error || `Request failed (${res.status})`);
+
+    // Consume the one-time question
+    gameState.finalQuestionUsed = true;
+    const fqBtn = document.getElementById('final-q-btn');
+    if (fqBtn) { fqBtn.disabled = true; fqBtn.textContent = '❓ FINAL Q USED'; }
+
+    renderFinalAnswers(data);
+
+  } catch (err) {
+    console.error('[ERROR] sendFinalQuestion:', err.message);
+    alert(err.message || 'Failed to ask the question.');
+    sendBtn.disabled = false;
+    sendBtn.textContent = 'ASK ALL ▶';
+  }
+}
+
+function renderFinalAnswers(data) {
+  document.getElementById('finalq-asked').textContent = `“${data.question}”`;
+
+  const wrap = document.getElementById('finalq-answers');
+  wrap.innerHTML = '';
+
+  gameState.suspects.forEach(s => {
+    const entry = data.answers[s.id];
+    if (!entry) return;
+    const card = document.createElement('div');
+    card.className = 'finalq-answer';
+    card.innerHTML = `
+      <div class="finalq-answer-name">${entry.suspectName} <span class="finalq-answer-role">${entry.suspectRole}</span></div>
+      <div class="finalq-answer-text">${entry.answer}</div>
+    `;
+    wrap.appendChild(card);
+  });
+
+  document.getElementById('finalq-ask').hidden = true;
+  document.getElementById('finalq-results').hidden = false;
 }
 
 // ============================================================
@@ -436,4 +527,5 @@ window.addEventListener('DOMContentLoaded', () => {
   if (audio) audio.addEventListener('ended', () => setPlayButton('play'));
 });
 
-window.addEventListener('DOMContentLoaded', startGame);
+// Game no longer auto-starts — it waits for the player to click "START CASE"
+// on the main menu (see beginCase). The menu is visible on load by default.

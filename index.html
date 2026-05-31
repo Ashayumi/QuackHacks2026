@@ -11,6 +11,39 @@
 <div class="doa-root">
   <div class="scanlines"></div>
 
+  <!-- MAIN MENU / HOW TO PLAY -->
+  <div class="menu-overlay" id="menu-overlay">
+    <div class="menu-screen">
+      <div class="menu-rec">
+        <span class="rec-dot"></span>
+        <span class="rec-label">REC ● CASE #2182</span>
+      </div>
+
+      <h1 class="menu-title">DEAD ON ARRIVAL</h1>
+      <div class="menu-subtitle">A MURDER MYSTERY — DETECTIVE TAPE ARCHIVE</div>
+
+      <div class="menu-brief">
+        Larry Misaras, a cashier at Staples, has been found dead after close.
+        Six coworkers. Six alibis. One of them is lying. Review the interrogation
+        tapes, find the contradictions, and name the killer.
+      </div>
+
+      <div class="menu-howto">
+        <div class="menu-howto-title">HOW TO PLAY</div>
+        <ol class="menu-steps">
+          <li><b>Review the tapes.</b> Select each suspect and step through their 5 answers. Hit <b>▶ PLAY</b> to hear them speak.</li>
+          <li><b>Open the CASE FILE.</b> It shows where the body was found and the key piece of evidence at the scene.</li>
+          <li><b>Cross-reference.</b> Use the <b>notepad</b> to track stories — innocents corroborate each other, the killer slips up.</li>
+          <li><b>One final question.</b> Once every tape is reviewed, you may ask all suspects <b>ONE</b> last question.</li>
+          <li><b>Make your accusation.</b> Choose carefully — once you accuse, the case is closed for good.</li>
+        </ol>
+      </div>
+
+      <button class="menu-start-btn" id="menu-start-btn" onclick="beginCase()">▶ START CASE</button>
+      <div class="menu-foot">EVIDENCE ARCHIVE — PLAYBACK MODE</div>
+    </div>
+  </div>
+
   <div class="top-bar">
     <div class="rec-pill">
       <span class="rec-dot"></span>
@@ -80,6 +113,9 @@
       TAPES REVIEWED: <span id="reviewed-count">0</span> / <span id="reviewed-total">5</span> &nbsp;|&nbsp;
       READY TO ACCUSE: <span id="accuse-ready">NO</span>
     </div>
+    <button class="final-q-btn" id="final-q-btn" disabled onclick="openFinalQuestion()">
+      ❓ FINAL QUESTION
+    </button>
     <button class="accuse-btn" id="accuse-btn" disabled onclick="makeAccusation()">
       ⚑ MAKE ACCUSATION
     </button>
@@ -112,6 +148,35 @@
 
       <div class="casefile-actions">
         <button class="ctrl-btn" onclick="closeCaseFile()">◀ CLOSE FILE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FINAL QUESTION MODAL -->
+  <div class="finalq-overlay" id="finalq-overlay" hidden>
+    <div class="finalq-modal">
+      <div class="finalq-header">❓ ONE FINAL QUESTION</div>
+      <div class="finalq-sub">You get to ask every suspect ONE last question. Use it wisely — you only get one.</div>
+
+      <div class="finalq-ask" id="finalq-ask">
+        <textarea
+          class="finalq-input"
+          id="finalq-input"
+          rows="3"
+          placeholder="e.g. Who did you see near Aisle 5 after closing?"
+        ></textarea>
+        <div class="finalq-actions">
+          <button class="ctrl-btn" onclick="closeFinalQuestion()">◀ CANCEL</button>
+          <button class="accuse-btn" id="finalq-send-btn" onclick="sendFinalQuestion()">ASK ALL ▶</button>
+        </div>
+      </div>
+
+      <div class="finalq-results" id="finalq-results" hidden>
+        <div class="finalq-asked" id="finalq-asked"></div>
+        <div class="finalq-answers" id="finalq-answers"></div>
+        <div class="finalq-actions">
+          <button class="ctrl-btn" onclick="closeFinalQuestion()">◀ CLOSE</button>
+        </div>
       </div>
     </div>
   </div>

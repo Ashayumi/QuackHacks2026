@@ -25,6 +25,123 @@
     z-index: 10;
   }
 
+  /* ============================================================
+     MAIN MENU / HOW TO PLAY
+     ============================================================ */
+  .menu-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 60;
+    background:
+      radial-gradient(ellipse at 50% 30%, rgba(40,10,10,0.35), transparent 70%),
+      #070707;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    overflow-y: auto;
+    transition: opacity 0.35s ease;
+  }
+  .menu-overlay.hidden { opacity: 0; pointer-events: none; }
+
+  .menu-screen {
+    width: 620px;
+    max-width: 100%;
+    border: 1px solid #2a1414;
+    border-radius: 8px;
+    background: linear-gradient(180deg, #0e0c0c 0%, #0a0909 100%);
+    box-shadow: 0 0 60px rgba(139,0,0,0.18), inset 0 0 80px rgba(0,0,0,0.5);
+    padding: 30px 34px 26px;
+    text-align: center;
+  }
+  .menu-rec {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    margin-bottom: 18px;
+  }
+  .menu-title {
+    font-size: 40px;
+    letter-spacing: 6px;
+    margin: 0;
+    color: #cc3333;
+    text-shadow: 0 0 18px rgba(204,51,51,0.45);
+    line-height: 1.05;
+  }
+  .menu-subtitle {
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: #6a5a4a;
+    margin: 8px 0 22px;
+  }
+  .menu-brief {
+    font-size: 13px;
+    line-height: 1.7;
+    color: #b0a898;
+    max-width: 480px;
+    margin: 0 auto 24px;
+  }
+  .menu-howto {
+    text-align: left;
+    border-top: 1px solid #1e1414;
+    border-bottom: 1px solid #1e1414;
+    padding: 18px 4px;
+    margin-bottom: 24px;
+  }
+  .menu-howto-title {
+    font-size: 12px;
+    letter-spacing: 3px;
+    color: #cc4444;
+    margin-bottom: 12px;
+    text-align: center;
+  }
+  .menu-steps {
+    margin: 0;
+    padding-left: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .menu-steps li {
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: #aaa191;
+  }
+  .menu-steps b { color: #d8cdb0; }
+  .menu-start-btn {
+    font-family: inherit;
+    font-size: 16px;
+    letter-spacing: 3px;
+    color: #f0e6d6;
+    background: #8b0000;
+    border: 1px solid #cc3333;
+    border-radius: 5px;
+    padding: 13px 40px;
+    cursor: pointer;
+    transition: background 0.14s, box-shadow 0.14s, transform 0.08s;
+    box-shadow: 0 0 22px rgba(139,0,0,0.4);
+  }
+  .menu-start-btn:hover:not(:disabled) {
+    background: #a30000;
+    box-shadow: 0 0 32px rgba(204,51,51,0.55);
+  }
+  .menu-start-btn:active:not(:disabled) { transform: translateY(1px); }
+  .menu-start-btn:disabled { opacity: 0.6; cursor: wait; }
+  .menu-foot {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: #3e3434;
+    margin-top: 18px;
+  }
+  @media (max-width: 480px) {
+    .menu-screen { padding: 22px 18px 20px; }
+    .menu-title { font-size: 28px; letter-spacing: 3px; }
+    .menu-brief { font-size: 12px; }
+    .menu-steps li { font-size: 12px; }
+    .menu-start-btn { width: 100%; }
+  }
+
   /* TOP BAR */
   .top-bar {
     display: flex;
@@ -466,6 +583,108 @@
   .casefile-actions { display: flex; justify-content: flex-end; }
 
   /* ============================================================
+     FINAL QUESTION
+     ============================================================ */
+  .final-q-btn {
+    font-family: inherit;
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    color: #cdbf8a;
+    background: #14110a;
+    border: 1px solid #5a4a1e;
+    border-radius: 4px;
+    padding: 9px 16px;
+    cursor: pointer;
+    transition: border-color 0.12s, background 0.12s, color 0.12s, opacity 0.12s;
+  }
+  .final-q-btn:hover:not(:disabled) { border-color: #c9a24a; background: #1d1810; color: #e8c870; }
+  .final-q-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .finalq-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.82);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    padding: 20px;
+  }
+  .finalq-overlay[hidden] { display: none; }
+
+  .finalq-modal {
+    background: #0d0d0d;
+    border: 1px solid #5a4a1e;
+    border-radius: 6px;
+    padding: 22px 24px;
+    width: 520px;
+    max-width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 0 40px rgba(201,162,74,0.16);
+  }
+  .finalq-header {
+    font-size: 14px;
+    color: #e8c870;
+    letter-spacing: 3px;
+    margin-bottom: 6px;
+  }
+  .finalq-sub {
+    font-size: 10px;
+    color: #6a5a3a;
+    letter-spacing: 1px;
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+  .finalq-input {
+    width: 100%;
+    background: #080808;
+    border: 1px solid #2e2710;
+    border-radius: 4px;
+    color: #d8cdb0;
+    font-family: inherit;
+    font-size: 13px;
+    padding: 10px 12px;
+    resize: vertical;
+    margin-bottom: 14px;
+  }
+  .finalq-input:focus { outline: none; border-color: #c9a24a; }
+  .finalq-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .finalq-asked {
+    font-size: 13px;
+    color: #e8c870;
+    font-style: italic;
+    line-height: 1.6;
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px dashed #2e2710;
+  }
+  .finalq-answers {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .finalq-answer {
+    background: #121009;
+    border: 1px solid #241e0e;
+    border-radius: 4px;
+    padding: 10px 12px;
+  }
+  .finalq-answer-name {
+    font-size: 12px;
+    color: #cdbf8a;
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+  }
+  .finalq-answer-role { font-size: 10px; color: #6a5a3a; letter-spacing: 0.5px; }
+  .finalq-answer-text { font-size: 12px; color: #b8af98; line-height: 1.6; }
+
+  /* ============================================================
      RESPONSIVE / DEVICE SCALING
      ============================================================ */
 
@@ -513,5 +732,6 @@
     .bottom-bar { flex-direction: column; gap: 8px; align-items: stretch; text-align: center; }
     .bottom-bar .accuse-btn { width: 100%; }
 
-    .accuse-overlay, .result-overlay, .casefile-overlay { padding: 14px; }
+    .accuse-overlay, .result-overlay, .casefile-overlay, .finalq-overlay { padding: 14px; }
+    .bottom-bar .final-q-btn { width: 100%; }
   }

@@ -402,6 +402,70 @@ app.post('/api/tts', async (req, res) => {
   }
 });
 
+// Player's ONE final question — broadcast to every suspect, used only once per game.
+// Each suspect answers in-character, grounded in the same hidden case truth, so the
+// killer keeps lying and innocents stay consistent.
+app.post('/api/final-question', async (req, res) => {
+  try {
+    const { sessionId, question } = req.body;
+
+    const session = activeSessions[sessionId];
+    if (!session) {
+      return res.status(400).json({ error: 'Invalid or expired session.' });
+    }
+    if (session.finalQuestionUsed) {
+      return res.status(403).json({ error: 'You have already used your final question.' });
+    }
+    if (!question || !question.trim()) {
+      return res.status(400).json({ error: 'Missing question.' });
+    }
+
+    const cleanQuestion = question.trim().slice(0, 400);
+    const { killerId, caseTruth } = session;
+    const suspectIds = Object.keys(SUSPECTS);
+    const questionText = `Question 1: ${cleanQuestion}`;
+
+    const answerPromises = suspectIds.map(async (suspectId) => {
+      const isKiller = suspectId === killerId;
+      const systemPrompt = buildSystemPrompt(suspectId, isKiller, caseTruth);
+
+      const response = await ai.models.generateContent({
+        model: MODEL,
+        contents: questionText,
+        config: {
+          systemInstruction: systemPrompt,
+          maxOutputTokens: 512,
+          thinkingConfig: { thinkingBudget: 0 }
+        }
+      });
+
+      const answer = parseAnswers(response.text)[0] || 'No response recorded.';
+      return { suspectId, answer };
+    });
+
+    const results = await Promise.all(answerPromises);
+
+    // Mark the one-time question as spent
+    session.finalQuestionUsed = true;
+
+    const answers = {};
+    results.forEach(({ suspectId, answer }) => {
+      answers[suspectId] = {
+        suspectName: SUSPECTS[suspectId].name,
+        suspectRole: SUSPECTS[suspectId].occupation,
+        answer
+      };
+    });
+
+    console.log(`[GAME] Final question used — Session: ${sessionId}. Q: "${cleanQuestion}"`);
+    res.json({ question: cleanQuestion, answers });
+
+  } catch (err) {
+    console.error('[ERROR] /api/final-question:', err.message);
+    res.status(500).json({ error: 'Failed to get answers. Please try again.' });
+  }
+});
+
 // Submit accusation and reveal result
 app.post('/api/accuse', (req, res) => {
   const { sessionId, accusedId } = req.body;
