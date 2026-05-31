@@ -1,15 +1,19 @@
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
 
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: #0a0a0a; }
+
   .doa-root {
     background: #0a0a0a;
-    min-height: 600px;
+    min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
     font-family: 'Share Tech Mono', monospace;
     color: #c8c8b4;
     position: relative;
     overflow: hidden;
-    border-radius: 8px;
     user-select: none;
   }
 
@@ -373,3 +377,54 @@
   }
   .result-modal.correct .result-title { color: #6fbf6f; }
   .result-modal.wrong .result-title { color: #cc4444; }
+
+  /* ============================================================
+     RESPONSIVE / DEVICE SCALING
+     ============================================================ */
+
+  /* Never let the control row overflow on any width */
+  .controls-bar { flex-wrap: wrap; }
+  .question-nav { flex-wrap: wrap; }
+
+  /* Tablets and below — stack the suspect list above the viewer */
+  @media (max-width: 760px) {
+    .main-area { flex-direction: column; }
+
+    .suspect-sidebar {
+      width: 100%;
+      min-width: 0;
+      flex-direction: row;
+      overflow-x: auto;
+      overflow-y: hidden;
+      border-right: none;
+      border-bottom: 1px solid #1e1e1e;
+      gap: 6px;
+      padding: 8px;
+    }
+    .sidebar-label { display: none; }
+    .suspect-item {
+      min-width: 132px;
+      flex: 0 0 auto;
+    }
+
+    .viewer-area { min-height: 0; }
+    .vhs-screen { min-height: 200px; }
+  }
+
+  /* Phones — tighten spacing, let chrome wrap, make tap targets bigger */
+  @media (max-width: 480px) {
+    .top-bar { flex-wrap: wrap; gap: 4px 10px; padding: 8px 12px; }
+    .case-label { display: none; }
+
+    .controls-bar { gap: 6px; }
+    .progress-bar { order: 6; flex-basis: 100%; min-width: 100%; }
+    .ctrl-btn { flex: 1 1 auto; text-align: center; }
+
+    .tape-content { padding: 16px; }
+    .tape-suspect-name { font-size: 15px; }
+
+    .bottom-bar { flex-direction: column; gap: 8px; align-items: stretch; text-align: center; }
+    .bottom-bar .accuse-btn { width: 100%; }
+
+    .accuse-overlay, .result-overlay { padding: 14px; }
+  }

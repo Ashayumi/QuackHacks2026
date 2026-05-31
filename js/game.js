@@ -49,6 +49,10 @@ function renderSidebar() {
   const sidebar = document.getElementById('suspect-sidebar');
   sidebar.innerHTML = '<div class="sidebar-label">SUSPECTS</div>';
 
+  // Keep the "reviewed / total" denominator in sync with the real suspect count
+  const totalEl = document.getElementById('reviewed-total');
+  if (totalEl) totalEl.textContent = gameState.suspects.length;
+
   gameState.suspects.forEach(suspect => {
     const item = document.createElement('div');
     item.className = 'suspect-item';
