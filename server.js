@@ -28,12 +28,12 @@ const TTS_MODEL = 'eleven_v3'; // most expressive model — supports [audio tags
 const DEFAULT_VOICE = '21m00Tcm4TlvDq8ikWAM'; // "Rachel" — a public ElevenLabs voice used as a fallback
 
 const VOICES = {
-  suspect_1: 'VOICE_ID_BILL',       // Bill Keady
-  suspect_2: 'VOICE_ID_STEPHANIE',  // Stephanie Beinart
-  suspect_3: 'VOICE_ID_CHRIS',      // Chris Yoder
-  suspect_4: 'VOICE_ID_IAN',        // Ian Beard
-  suspect_5: 'VOICE_ID_BEATRIZ',    // Beatriz Arevalo
-  suspect_6: 'VOICE_ID_JACOB'       // Jacob Hurst
+  suspect_1: 'Ybqj6CIlqb6M85s9Bl4n',       // Bill Keady
+  suspect_2: 'flHkNRp1BlvT73UL6gyz',  // Stephanie Beinart
+  suspect_3: 'YHcCpa6SBWnKDaCPZJQR',      // Chris Yoder
+  suspect_4: 'sjFiQiLHGgEyVwArBT5s',        // Ian Beard
+  suspect_5: 'eppqEXVumQ3CfdndcIBd',    // Beatriz Arevalo
+  suspect_6: 'eadgjmk4R4uojdsheG9t'       // Jacob Hurst
 };
 
 function resolveVoice(suspectId) {
