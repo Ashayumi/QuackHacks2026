@@ -16,8 +16,9 @@
       <span class="rec-dot"></span>
       <span class="rec-label">PLAYBACK MODE</span>
     </div>
-    <div class="case-label">EVIDENCE ARCHIVE — CASE #0001</div>
-    <div class="date-label" id="game-date">OCT 14, 19██</div>
+    <div class="case-label">EVIDENCE ARCHIVE — CASE #2182</div>
+    <button class="case-file-btn" id="case-file-btn" onclick="openCaseFile()">📁 CASE FILE</button>
+    <div class="date-label" id="game-date">OCT 14, 20██</div>
   </div>
 
   <div class="main-area">
@@ -76,12 +77,65 @@
 
   <div class="bottom-bar">
     <div class="progress-label">
-      TAPES REVIEWED: <span id="reviewed-count">0</span> / 5 &nbsp;|&nbsp;
+      TAPES REVIEWED: <span id="reviewed-count">0</span> / <span id="reviewed-total">5</span> &nbsp;|&nbsp;
       READY TO ACCUSE: <span id="accuse-ready">NO</span>
     </div>
     <button class="accuse-btn" id="accuse-btn" disabled onclick="makeAccusation()">
       ⚑ MAKE ACCUSATION
     </button>
+  </div>
+
+  <!-- CASE FILE MODAL -->
+  <div class="casefile-overlay" id="casefile-overlay" hidden>
+    <div class="casefile-modal">
+      <div class="casefile-header">📁 CASE FILE — #2182</div>
+      <div class="casefile-stamp">CONFIDENTIAL</div>
+
+      <div class="casefile-section">
+        <div class="casefile-label">VICTIM</div>
+        <div class="casefile-value">Larry Misaras — Cashier</div>
+      </div>
+
+      <div class="casefile-section">
+        <div class="casefile-label">BODY FOUND IN</div>
+        <div class="casefile-value casefile-room" id="casefile-body">— — —</div>
+      </div>
+
+      <div class="casefile-section">
+        <div class="casefile-label">EVIDENCE AT THE SCENE</div>
+        <div class="casefile-value casefile-evidence" id="casefile-evidence">— — —</div>
+      </div>
+
+      <div class="casefile-hint">
+        Cross-reference the tapes against this evidence. The truth is in the contradictions.
+      </div>
+
+      <div class="casefile-actions">
+        <button class="ctrl-btn" onclick="closeCaseFile()">◀ CLOSE FILE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACCUSATION MODAL -->
+  <div class="accuse-overlay" id="accuse-overlay" hidden>
+    <div class="accuse-modal">
+      <div class="accuse-modal-header">⚑ NAME YOUR KILLER</div>
+      <div class="accuse-modal-sub">Once you accuse, the case is closed. Choose carefully.</div>
+      <div class="accuse-suspect-list" id="accuse-suspect-list"></div>
+      <div class="accuse-modal-actions">
+        <button class="ctrl-btn" onclick="closeAccuseModal()">◀ CANCEL</button>
+        <button class="accuse-btn" id="confirm-accuse-btn" disabled onclick="confirmAccusation()">⚑ ACCUSE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULT MODAL -->
+  <div class="result-overlay" id="result-overlay" hidden>
+    <div class="result-modal" id="result-modal">
+      <div class="result-title" id="result-title"></div>
+      <div class="result-message" id="result-message"></div>
+      <button class="accuse-btn" onclick="restartGame()">⟲ NEW CASE</button>
+    </div>
   </div>
 </div>
 

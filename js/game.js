@@ -10,6 +10,7 @@ let gameState = {
   currentQuestion: 0,
   reviewed: new Set(),
   audioCache: {},   // key `${suspectId}:${qIndex}` -> object URL of voiced audio
+  caseFile: null,   // { bodyLocation, evidence, questions } the player is allowed to see
 };
 
 // ============================================================
@@ -28,7 +29,9 @@ async function startGame() {
     gameState.sessionId = data.sessionId;
     gameState.tapes     = data.tapes;
     gameState.suspects  = data.suspects;
+    gameState.caseFile  = data.caseFile || null;
 
+    populateCaseFile();
     renderSidebar();
     selectSuspect(data.suspects[0].id);
     showLoading(false);
@@ -48,6 +51,10 @@ async function startGame() {
 function renderSidebar() {
   const sidebar = document.getElementById('suspect-sidebar');
   sidebar.innerHTML = '<div class="sidebar-label">SUSPECTS</div>';
+
+  // Keep the "reviewed / total" denominator in sync with the real suspect count
+  const totalEl = document.getElementById('reviewed-total');
+  if (totalEl) totalEl.textContent = gameState.suspects.length;
 
   gameState.suspects.forEach(suspect => {
     const item = document.createElement('div');
@@ -180,28 +187,74 @@ function markReviewed(suspectId) {
 }
 
 // ============================================================
+//   CASE FILE
+// ============================================================
+
+// Fill the case-file modal with this case's body location + evidence clue.
+function populateCaseFile() {
+  const cf = gameState.caseFile;
+  const bodyEl = document.getElementById('casefile-body');
+  const evEl   = document.getElementById('casefile-evidence');
+  if (!cf) return;
+  if (bodyEl) bodyEl.textContent = cf.bodyLocation || 'Unknown';
+  if (evEl)   evEl.textContent   = cf.evidence || 'No evidence logged.';
+}
+
+function openCaseFile() {
+  const overlay = document.getElementById('casefile-overlay');
+  if (overlay) overlay.hidden = false;
+}
+
+function closeCaseFile() {
+  const overlay = document.getElementById('casefile-overlay');
+  if (overlay) overlay.hidden = true;
+}
+
+// ============================================================
 //   ACCUSATION
 // ============================================================
 
+let selectedAccusedId = null;
+
+// Open the in-page accusation modal and render the suspect choices
 function makeAccusation() {
-  const suspectList = gameState.suspects
-    .map(s => `${s.id}: ${s.name}`)
-    .join('\n');
+  selectedAccusedId = null;
 
-  const input = prompt(
-    `Who do you accuse of murdering Reginald Ashworth?\n\nEnter the number:\n${
-      gameState.suspects.map((s, i) => `${i + 1}. ${s.name}`).join('\n')
-    }`
-  );
+  const list = document.getElementById('accuse-suspect-list');
+  list.innerHTML = '';
 
-  const index = parseInt(input) - 1;
-  if (isNaN(index) || index < 0 || index >= gameState.suspects.length) {
-    alert('Invalid selection.');
-    return;
-  }
+  gameState.suspects.forEach(s => {
+    const card = document.createElement('div');
+    card.className = 'accuse-choice';
+    card.dataset.id = s.id;
+    card.onclick = () => selectAccused(s.id);
+    card.innerHTML = `
+      <div class="accuse-choice-name">${s.name}</div>
+      <div class="accuse-choice-role">${s.occupation}</div>
+    `;
+    list.appendChild(card);
+  });
 
-  const accusedId = gameState.suspects[index].id;
-  submitAccusation(accusedId);
+  document.getElementById('confirm-accuse-btn').disabled = true;
+  document.getElementById('accuse-overlay').hidden = false;
+}
+
+function selectAccused(id) {
+  selectedAccusedId = id;
+  document.querySelectorAll('.accuse-choice').forEach(el => {
+    el.classList.toggle('selected', el.dataset.id === id);
+  });
+  document.getElementById('confirm-accuse-btn').disabled = false;
+}
+
+function closeAccuseModal() {
+  document.getElementById('accuse-overlay').hidden = true;
+}
+
+function confirmAccusation() {
+  if (!selectedAccusedId) return;
+  closeAccuseModal();
+  submitAccusation(selectedAccusedId);
 }
 
 async function submitAccusation(accusedId) {
@@ -220,16 +273,27 @@ async function submitAccusation(accusedId) {
 
   } catch (err) {
     console.error('[ERROR] submitAccusation:', err.message);
-    alert('Failed to submit accusation. Please try again.');
+    showResult({ correct: false, message: 'Failed to submit accusation. Please try again.' });
   }
 }
 
 function showResult(data) {
-  const msg = data.correct
-    ? `✓ CASE CLOSED\n\n${data.message}\n\nYou identified the killer.`
-    : `✗ WRONG ACCUSATION\n\n${data.message}\n\nThe case goes cold.`;
+  const overlay = document.getElementById('result-overlay');
+  const modal   = document.getElementById('result-modal');
+  const title   = document.getElementById('result-title');
+  const message = document.getElementById('result-message');
 
-  alert(msg);
+  modal.classList.toggle('correct', !!data.correct);
+  modal.classList.toggle('wrong', !data.correct);
+  title.textContent   = data.correct ? '✓ CASE CLOSED' : '✗ THE CASE GOES COLD';
+  message.textContent = data.message || '';
+
+  overlay.hidden = false;
+}
+
+function restartGame() {
+  sessionStorage.removeItem('doa_notes');
+  location.reload();
 }
 
 // ============================================================

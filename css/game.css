@@ -1,15 +1,19 @@
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
 
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: #0a0a0a; }
+
   .doa-root {
     background: #0a0a0a;
-    min-height: 600px;
+    min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
     font-family: 'Share Tech Mono', monospace;
     color: #c8c8b4;
     position: relative;
     overflow: hidden;
-    border-radius: 8px;
     user-select: none;
   }
 
@@ -46,6 +50,19 @@
   .rec-label { font-size: 11px; color: #cc3333; letter-spacing: 2px; }
   .case-label { font-size: 11px; color: #555; letter-spacing: 1px; }
   .date-label { font-size: 11px; color: #444; letter-spacing: 1px; }
+  .case-file-btn {
+    font-family: inherit;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: #c9a24a;
+    background: #14110a;
+    border: 1px solid #5a4a1e;
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: border-color 0.12s, background 0.12s, color 0.12s;
+  }
+  .case-file-btn:hover { border-color: #c9a24a; background: #1d1810; color: #e8c870; }
 
   /* MAIN AREA */
   .main-area {
@@ -294,3 +311,207 @@
   }
   .accuse-btn:hover { background: #2a0a0a; color: #e05555; }
   .accuse-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  /* ACCUSATION + RESULT OVERLAYS */
+  .accuse-overlay, .result-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.82);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    padding: 20px;
+  }
+  .accuse-overlay[hidden], .result-overlay[hidden] { display: none; }
+
+  .accuse-modal, .result-modal {
+    background: #0d0d0d;
+    border: 1px solid #8b0000;
+    border-radius: 6px;
+    padding: 22px 24px;
+    width: 380px;
+    max-width: 100%;
+    box-shadow: 0 0 40px rgba(139,0,0,0.25);
+    text-align: center;
+  }
+  .accuse-modal-header {
+    font-size: 14px;
+    color: #cc4444;
+    letter-spacing: 3px;
+    margin-bottom: 6px;
+  }
+  .accuse-modal-sub {
+    font-size: 10px;
+    color: #6a5a4a;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+  .accuse-suspect-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 18px;
+  }
+  .accuse-choice {
+    background: #141414;
+    border: 1px solid #2a2a2a;
+    border-radius: 4px;
+    padding: 9px 12px;
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.12s, background 0.12s;
+  }
+  .accuse-choice:hover { border-color: #4a2020; }
+  .accuse-choice.selected { border-color: #8b0000; background: #1a1010; }
+  .accuse-choice-name { font-size: 13px; color: #c8c0b0; }
+  .accuse-choice.selected .accuse-choice-name { color: #e8d5c4; }
+  .accuse-choice-role { font-size: 10px; color: #555; margin-top: 2px; }
+  .accuse-modal-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .result-title {
+    font-size: 16px;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+  }
+  .result-message {
+    font-size: 12px;
+    color: #b0a898;
+    line-height: 1.7;
+    margin-bottom: 18px;
+  }
+  .result-modal.correct {
+    border-color: #4a7c4a;
+    box-shadow: 0 0 40px rgba(74,124,74,0.22);
+  }
+  .result-modal.correct .result-title { color: #6fbf6f; }
+  .result-modal.wrong .result-title { color: #cc4444; }
+
+  /* ============================================================
+     CASE FILE MODAL
+     ============================================================ */
+  .casefile-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.82);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    padding: 20px;
+  }
+  .casefile-overlay[hidden] { display: none; }
+
+  .casefile-modal {
+    position: relative;
+    background: #100d07;
+    border: 1px solid #5a4a1e;
+    border-radius: 6px;
+    padding: 22px 24px;
+    width: 440px;
+    max-width: 100%;
+    box-shadow: 0 0 40px rgba(201,162,74,0.18);
+  }
+  .casefile-header {
+    font-size: 14px;
+    color: #c9a24a;
+    letter-spacing: 3px;
+    margin-bottom: 4px;
+  }
+  .casefile-stamp {
+    position: absolute;
+    top: 18px;
+    right: 20px;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: #cc4444;
+    border: 1px solid #6a2020;
+    border-radius: 3px;
+    padding: 3px 7px;
+    transform: rotate(6deg);
+    opacity: 0.8;
+  }
+  .casefile-section {
+    border-top: 1px dashed #2e2710;
+    padding: 12px 0;
+  }
+  .casefile-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: #7a6a3a;
+    margin-bottom: 5px;
+  }
+  .casefile-value {
+    font-size: 13px;
+    color: #d8cdb0;
+    line-height: 1.6;
+  }
+  .casefile-room {
+    font-size: 18px;
+    color: #e8c870;
+    letter-spacing: 1px;
+  }
+  .casefile-evidence { color: #c9bfa2; font-style: italic; }
+  .casefile-hint {
+    font-size: 10px;
+    color: #6a5a3a;
+    letter-spacing: 0.5px;
+    line-height: 1.6;
+    margin: 14px 0 18px;
+  }
+  .casefile-actions { display: flex; justify-content: flex-end; }
+
+  /* ============================================================
+     RESPONSIVE / DEVICE SCALING
+     ============================================================ */
+
+  /* Never let the control row overflow on any width */
+  .controls-bar { flex-wrap: wrap; }
+  .question-nav { flex-wrap: wrap; }
+
+  /* Tablets and below — stack the suspect list above the viewer */
+  @media (max-width: 760px) {
+    .main-area { flex-direction: column; }
+
+    .suspect-sidebar {
+      width: 100%;
+      min-width: 0;
+      flex-direction: row;
+      overflow-x: auto;
+      overflow-y: hidden;
+      border-right: none;
+      border-bottom: 1px solid #1e1e1e;
+      gap: 6px;
+      padding: 8px;
+    }
+    .sidebar-label { display: none; }
+    .suspect-item {
+      min-width: 132px;
+      flex: 0 0 auto;
+    }
+
+    .viewer-area { min-height: 0; }
+    .vhs-screen { min-height: 200px; }
+  }
+
+  /* Phones — tighten spacing, let chrome wrap, make tap targets bigger */
+  @media (max-width: 480px) {
+    .top-bar { flex-wrap: wrap; gap: 4px 10px; padding: 8px 12px; }
+    .case-label { display: none; }
+
+    .controls-bar { gap: 6px; }
+    .progress-bar { order: 6; flex-basis: 100%; min-width: 100%; }
+    .ctrl-btn { flex: 1 1 auto; text-align: center; }
+
+    .tape-content { padding: 16px; }
+    .tape-suspect-name { font-size: 15px; }
+
+    .bottom-bar { flex-direction: column; gap: 8px; align-items: stretch; text-align: center; }
+    .bottom-bar .accuse-btn { width: 100%; }
+
+    .accuse-overlay, .result-overlay, .casefile-overlay { padding: 14px; }
+  }
