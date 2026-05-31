@@ -294,3 +294,82 @@
   }
   .accuse-btn:hover { background: #2a0a0a; color: #e05555; }
   .accuse-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  /* ACCUSATION + RESULT OVERLAYS */
+  .accuse-overlay, .result-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.82);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    padding: 20px;
+  }
+  .accuse-overlay[hidden], .result-overlay[hidden] { display: none; }
+
+  .accuse-modal, .result-modal {
+    background: #0d0d0d;
+    border: 1px solid #8b0000;
+    border-radius: 6px;
+    padding: 22px 24px;
+    width: 380px;
+    max-width: 100%;
+    box-shadow: 0 0 40px rgba(139,0,0,0.25);
+    text-align: center;
+  }
+  .accuse-modal-header {
+    font-size: 14px;
+    color: #cc4444;
+    letter-spacing: 3px;
+    margin-bottom: 6px;
+  }
+  .accuse-modal-sub {
+    font-size: 10px;
+    color: #6a5a4a;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+  .accuse-suspect-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 18px;
+  }
+  .accuse-choice {
+    background: #141414;
+    border: 1px solid #2a2a2a;
+    border-radius: 4px;
+    padding: 9px 12px;
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.12s, background 0.12s;
+  }
+  .accuse-choice:hover { border-color: #4a2020; }
+  .accuse-choice.selected { border-color: #8b0000; background: #1a1010; }
+  .accuse-choice-name { font-size: 13px; color: #c8c0b0; }
+  .accuse-choice.selected .accuse-choice-name { color: #e8d5c4; }
+  .accuse-choice-role { font-size: 10px; color: #555; margin-top: 2px; }
+  .accuse-modal-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .result-title {
+    font-size: 16px;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+  }
+  .result-message {
+    font-size: 12px;
+    color: #b0a898;
+    line-height: 1.7;
+    margin-bottom: 18px;
+  }
+  .result-modal.correct {
+    border-color: #4a7c4a;
+    box-shadow: 0 0 40px rgba(74,124,74,0.22);
+  }
+  .result-modal.correct .result-title { color: #6fbf6f; }
+  .result-modal.wrong .result-title { color: #cc4444; }

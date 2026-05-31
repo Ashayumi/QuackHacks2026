@@ -83,6 +83,28 @@
       ⚑ MAKE ACCUSATION
     </button>
   </div>
+
+  <!-- ACCUSATION MODAL -->
+  <div class="accuse-overlay" id="accuse-overlay" hidden>
+    <div class="accuse-modal">
+      <div class="accuse-modal-header">⚑ NAME YOUR KILLER</div>
+      <div class="accuse-modal-sub">Once you accuse, the case is closed. Choose carefully.</div>
+      <div class="accuse-suspect-list" id="accuse-suspect-list"></div>
+      <div class="accuse-modal-actions">
+        <button class="ctrl-btn" onclick="closeAccuseModal()">◀ CANCEL</button>
+        <button class="accuse-btn" id="confirm-accuse-btn" disabled onclick="confirmAccusation()">⚑ ACCUSE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULT MODAL -->
+  <div class="result-overlay" id="result-overlay" hidden>
+    <div class="result-modal" id="result-modal">
+      <div class="result-title" id="result-title"></div>
+      <div class="result-message" id="result-message"></div>
+      <button class="accuse-btn" onclick="restartGame()">⟲ NEW CASE</button>
+    </div>
+  </div>
 </div>
 
 <audio id="tape-audio" preload="none"></audio>
