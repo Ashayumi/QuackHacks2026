@@ -1,4 +1,4 @@
-# GAME NAME — A Murder Mystery Detective Game
+**The Missing Staple** — A Murder Mystery Detective Game
 
 > **A Hackathon Project for [Quack Hacks 2026](https://quackhacks.org)**
 
@@ -8,15 +8,15 @@
 
 The Missing Staple is a browser-based murder mystery game inspired by the classic board game Clue. Players step into the role of a detective tasked with solving a murder by reviewing pre-recorded interrogation tapes of 5 suspects. Using an in-game notepad, players cross-reference answers, identify contradictions, and make their accusation — before the killer gets away.
 
-Each playthrough is powered by **AI agents** — every suspect has their own unique personality and is dynamically generated fresh each game, meaning that no two playthroughs are ever the same.
+Each playthrough is guided by **AI agents** — every suspect has their own unique personality and is dynamically generated fresh each game, meaning that no two playthroughs are ever the same.
 
 ---
 
 ## How It Works
 
 1. **A murder has been committed.** You receive the case file with the victim's profile and the crime scenario.
-2. **Five suspects have been recorded.** Pull up each suspect's interrogation tape and listen to their answers to 5 different questions.
-3. **Take notes.** Use the built-in detective notepad to jot down inconsistencies and cross-reference what the suspects say about each other.
+2. **Five suspects have been recorded.** Pull up each suspect's interrogation tape and listen to their answers to 5 different questions. Afterwards, ask a singular question to all interviewees of your choice to help influence your decision.
+3. **Take notes.** Use the built-in detective notepad to write down inconsistencies and cross-reference what the suspects say about each other.
 4. **Make your accusation.** When you're confident you've found the killer — point the finger. But choose wisely or its game over.
 
 ---
@@ -82,10 +82,9 @@ ANTHROPIC_API_KEY=your_api_key_here
 
 | Name | Role |
 |---|---|
-| Jacob | Game Design, Charachter Design, Writing |
-| Beatriz | AI Prompt Engineering |
-| Yael | Frontend Development |
-| TBD | UI/UX Design |
+| Jacob | Game Design, Character Design, Writing, UX Design |
+| Beatriz | AI Prompt Engineering, Character Design |
+| Yael | Frontend Development, API maintenence, UI Design |
 
 ---
 
